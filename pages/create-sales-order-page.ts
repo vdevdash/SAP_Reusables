@@ -88,22 +88,29 @@ export class CreateSalesOrderPage {
     // MCP discovered cell IDs: tbl4736[1,2]=Material, tbl4736[1,4]=Quantity, tbl4736[1,13]=Plant
 
     // Material field - using exact SAP cell ID (row 1, column 2)
-    this.materialCell = this.iframe.locator("#tbl4736\\[1\\,2\\]");
-    this.materialTextbox = this.iframe.locator(
+    this.materialCell = this.iframe.locator(
       '//span[contains(@lsdata, "ctxtRV45A-MABNR[1,0]")]'
     );
 
+    this.materialTextbox = this.iframe
+      .locator('//input[contains(@lsdata, "ctxtRV45A-MABNR[1,0]")]')
+      .first();
+
     // Order Quantity field - using exact SAP cell ID (row 1, column 4)
-    this.quantityCell = this.iframe.locator("#tbl4736\\[1\\,4\\]");
-    this.quantityTextbox = this.iframe
+    this.quantityCell = this.iframe
       .locator('//span[contains(@lsdata, "txtRV45A-KWMENG[3,0]")]')
+      .first();
+    this.quantityTextbox = this.iframe
+      .locator('//input[contains(@lsdata, "txtRV45A-KWMENG[3,0]")]')
       .first();
 
     // Plant field - using exact SAP cell ID (row 1, column 13)
     // MCP TESTING RESULT: Does not create editable input when clicked
-    this.plantCell = this.iframe.locator("#tbl4736\\[1\\,13\\]");
-    this.plantTextbox = this.iframe
+    this.plantCell = this.iframe
       .locator('//span[contains(@lsdata, "ctxtVBAP-WERKS[12,0]")]')
+      .first();
+    this.plantTextbox = this.iframe
+      .locator('//input[contains(@lsdata, "ctxtVBAP-WERKS[12,0]")]')
       .first();
   }
 
@@ -164,37 +171,43 @@ export class CreateSalesOrderPage {
     // Payment Terms - MCP verified locator
     await this.pytTermsInput.click();
     await this.pytTermsInput.fill(payment);
+    await this.page.keyboard.press("Enter");
     await this.page.waitForTimeout(1000);
   }
 
   async addLineItem(material: string, quantity: string, plant: string) {
     await this.page.waitForTimeout(1000);
 
-    // // MCP verified: First fill Req. Deliv. Date (required field)
-    // await this.reqDelivDateInput.click();
-    // await this.reqDelivDateInput.fill("15.12.2025");
+    // // MCP verified: Material field - click cell first to activate, then find input
+    // await this.materialCell.click();
     // await this.page.waitForTimeout(500);
 
-    // MCP verified: Material cell - click then find textbox inside
-    // Using grid cell pattern [id*="tbl"][id$="[1,2]"] for Material column
-    await this.page.pause();
-    // await this.materialTextbox.click();
-    await this.page.waitForTimeout(500);
+    // Wait for material textbox to appear after cell activation
+    await expect(this.materialTextbox).toBeVisible({ timeout: 10000 });
+    await this.materialTextbox.click();
     await this.materialTextbox.type(material);
+    // await this.page.keyboard.press("Enter");
     await this.page.waitForTimeout(1500);
 
-    // MCP verified: Order Quantity cell - column 4
-    // await this.quantityTextbox.click();
-    await this.page.waitForTimeout(500);
-    // Quantity textbox has _c suffix
+    // // MCP verified: Order Quantity field
+    // await this.quantityCell.click();
+    // await this.page.waitForTimeout(500);
+
+    await expect(this.quantityCell).toBeVisible({ timeout: 10000 });
+    await this.quantityCell.click();
     await this.quantityTextbox.type(quantity);
+    // await this.page.keyboard.press("Enter");
     await this.page.waitForTimeout(1500);
 
-    // MCP verified: Plant cell - column 13 (if plant is provided)
+    // MCP verified: Plant field (if plant is provided)
     if (plant) {
-      // await this.plantTextbox.click();
-      await this.page.waitForTimeout(500);
+      // await this.plantCell.click();
+      // await this.page.waitForTimeout(500);
+
+      await expect(this.plantCell).toBeVisible({ timeout: 10000 });
+      await this.plantCell.click();
       await this.plantTextbox.type(plant);
+      await this.page.keyboard.press("Enter");
       await this.page.waitForTimeout(1000);
     }
   }
