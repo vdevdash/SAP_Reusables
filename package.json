@@ -1,0 +1,12 @@
+{
+  "dependencies": {
+    "init": "^0.1.2",
+    "playwright": "^1.51.1",
+    "playwright-bdd": "^8.4.2"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.51.1",
+    "@types/node": "^22.13.13"
+  },
+  "scripts": {}
+}
